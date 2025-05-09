@@ -1,0 +1,49 @@
+name: Sync Fork with Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight UTC
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout forked repository
+        uses: actions/checkout@v4
+        with:
+          repository: <your-org>/horilla-internal
+          ref: main
+          token: ${{ secrets.SYNC_PAT }}
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/horilla-opensource/horilla.git
+          git fetch upstream
+
+      - name: Merge upstream changes
+        run: |
+          git checkout main
+          git merge upstream/main --allow-unrelated-histories
+        continue-on-error: true
+
+      - name: Push changes to fork
+        run: |
+          git push origin main
+        env:
+          GIT_AUTHOR_NAME: GitHub Actions
+          GIT_AUTHOR_EMAIL: actions@github.com
+          GIT_COMMITTER_NAME: GitHub Actions
+          GIT_COMMITTER_EMAIL: actions@github.com
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 1, // Replace with an issue number or create one
+              body: 'Failed to sync fork with upstream. Please check the workflow logs.'
+            })
