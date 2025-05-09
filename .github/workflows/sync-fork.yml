@@ -12,8 +12,8 @@ jobs:
       - name: Checkout forked repository
         uses: actions/checkout@v4
         with:
-          repository: <your-org>/horilla-internal
-          ref: main
+          repository: HorillaOpenSource/horilla
+          ref: master
           token: ${{ secrets.SYNC_PAT }}
 
       - name: Add upstream remote
