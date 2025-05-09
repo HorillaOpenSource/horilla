@@ -23,13 +23,13 @@ jobs:
 
       - name: Merge upstream changes
         run: |
-          git checkout main
-          git merge upstream/main --allow-unrelated-histories
+          git checkout master
+          git merge upstream/master --allow-unrelated-histories
         continue-on-error: true
 
       - name: Push changes to fork
         run: |
-          git push origin main
+          git push origin master
         env:
           GIT_AUTHOR_NAME: GitHub Actions
           GIT_AUTHOR_EMAIL: actions@github.com
